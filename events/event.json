@@ -1,0 +1,28 @@
+{
+  "version": "0",
+  "id": "0c8c1c41-0ba7-23ac-5678-30c3ff95cb8b",
+  "detail-type": "Object Created",
+  "source": "aws.s3",
+  "account": "123456789012",
+  "time": "2023-10-19T20:43:21Z",
+  "region": "eu-west-1",
+  "resources": [
+      "arn:aws:s3:::sample-uploads-bucket"
+  ],
+  "detail": {
+      "version": "0",
+      "bucket": {
+          "name": "sample-uploads-bucket"
+      },
+      "object": {
+          "key": "skateboard.jpg",
+          "size": 1048576,
+          "etag": "7d376a104fc650a066b3604d334c50a3",
+          "sequencer": "00653194E62FD2BA22"
+      },
+      "request-id": "MPSJKN3JACGJW67W",
+      "requester": "123456789012",
+      "source-ip-address": "255.240.197.232",
+      "reason": "PutObject"
+  }
+}

@@ -1,0 +1,162 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  advanced-logging-controls-lambda
+
+  SAM Template demonstrating Lambda function custom log group configuration
+  
+Parameters:
+  UploadsBucketName:
+    Type: String
+
+Globals:
+  Function:
+    Timeout: 20
+
+Resources:
+  # Add S3 bucket for uploads
+  UploadsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref UploadsBucketName
+      NotificationConfiguration:
+        EventBridgeConfiguration: 
+          EventBridgeEnabled: true
+
+  # Configuring a custom log group to store logs from mutliple sources (optionally), with a customized retention period
+  CloudWatchLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: AggregatedLabelsLogGroup
+      RetentionInDays: 30
+
+  # Detect Labels Lambda function written in NodeJS 18.x with TypeScript
+  DetectLabelsFunction:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: detect-labels/
+      Handler: app.lambdaHandler
+      Runtime: nodejs18.x
+      Architectures:
+      - x86_64
+      Events:
+        ObjectCreatedEvent:
+          Type: EventBridgeRule
+          Properties:
+            Pattern:
+              source:
+                - "aws.s3"
+              detail-type:
+                - "Object Created"
+              detail:
+                bucket:
+                  name: 
+                    - !Ref UploadsBucket
+                object:
+                  key:
+                    - wildcard: "*.png"
+                    - wildcard: "*.jpg"
+      # Set Lambda execution role with IAM policies to access the S3 bucket and execute Rekognition
+      Policies:
+        - S3ReadPolicy:
+            BucketName: !Ref UploadsBucketName
+        - RekognitionDetectOnlyPolicy: {}
+        - Version: 2012-10-17
+          Statement:
+            - Sid: CloudWatchLogGroup
+              Action: 
+                - logs:CreateLogStream
+                - logs:PutLogEvents
+              Resource: !Sub
+                - arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:${logGroupName}:log-stream:*
+                - logGroupName: !Ref CloudWatchLogGroup
+              Effect: Allow
+      # Advanced logging controls for AWS Lambda
+      # LoggingConfig:
+      #   LogFormat: JSON # Application logs format, defaults to JSON (TEXT is optional)
+      #   ApplicationLogLevel: DEBUG # Application log level, defaults to INFO
+      #   SystemLogLevel: INFO # System log level, defaults to INFO
+      #   LogGroupName: !Ref CloudWatchLogGroup # Customized log group to emit logs to
+
+    Metadata: # Manage esbuild properties
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: es2020
+        Sourcemap: true
+        EntryPoints:
+        - app.ts
+
+  # Extract Text Lambda function written in NodeJS 18.x with TypeScript
+  ExtractTextFunction:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: extract-text/
+      Handler: app.lambdaHandler
+      Runtime: nodejs18.x
+      Architectures:
+      - x86_64
+      Events:
+        ObjectCreatedEvent:
+          Type: EventBridgeRule
+          Properties:
+            Pattern:
+              source:
+                - "aws.s3"
+              detail-type:
+                - "Object Created"
+              detail:
+                bucket:
+                  name: 
+                    - !Ref UploadsBucket
+                object:
+                  key:
+                    - wildcard: "*.png"
+                    - wildcard: "*.jpg"
+      # Set Lambda execution role with IAM policies to access the S3 bucket and execute Textract
+      Policies:
+        - S3ReadPolicy:
+            BucketName: !Ref UploadsBucketName
+        - Version: 2012-10-17
+          Statement:
+            - Sid: DetectDocumentText
+              Action: textract:DetectDocumentText
+              Resource: "*"
+              Effect: Allow
+        - Version: 2012-10-17
+          Statement:
+            - Sid: CloudWatchLogGroup
+              Action: 
+                - logs:CreateLogStream
+                - logs:PutLogEvents
+              Resource: !Sub
+                - arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:${logGroupName}:log-stream:*
+                - logGroupName: !Ref CloudWatchLogGroup
+              Effect: Allow
+
+      # New custom log configration
+      # LoggingConfig:
+      #   LogFormat: JSON # Application logs format, defaults to JSON (TEXT is optional)
+      #   ApplicationLogLevel: INFO # Application log level, defaults to INFO
+      #   SystemLogLevel: INFO # System log level, defaults to INFO
+      #   LogGroupName: !Ref CloudWatchLogGroup # Customized log group to emit logs to
+
+    Metadata: # Manage esbuild properties
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: es2020
+        Sourcemap: true
+        EntryPoints:
+        - app.ts
+
+Outputs:
+  UploadsBucket:
+    Description: Uploads S3 Bucket
+    Value: !Ref UploadsBucket
+  DetectLabelsFunction:
+    Description: Detect Labels Function ARN
+    Value: !GetAtt DetectLabelsFunction.Arn
+  ExtractTextFunction:
+    Description: Extract Text Function ARN
+    Value: !GetAtt ExtractTextFunction.Arn
