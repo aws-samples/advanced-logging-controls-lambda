@@ -129,9 +129,7 @@ Resources:
               Action: 
                 - logs:CreateLogStream
                 - logs:PutLogEvents
-              Resource: !Sub
-                - arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:${logGroupName}:log-stream:*
-                - logGroupName: !Ref CloudWatchLogGroup
+              Resource: !GetAtt CloudWatchLogGroup.Arn
               Effect: Allow
 
       # New custom log configration
@@ -154,6 +152,9 @@ Outputs:
   UploadsBucket:
     Description: Uploads S3 Bucket
     Value: !Ref UploadsBucket
+  LogGroupArn:
+    Description: Custom aggregated log group ARN 
+    Value: !GetAtt CloudWatchLogGroup.Arn
   DetectLabelsFunction:
     Description: Detect Labels Function ARN
     Value: !GetAtt DetectLabelsFunction.Arn
