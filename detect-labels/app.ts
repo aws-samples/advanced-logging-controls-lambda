@@ -5,22 +5,23 @@ const rekognitionClient = new RekognitionClient();
 
 export const lambdaHandler = async (event: S3ObjectCreatedNotificationEvent) => {
   // Only printing out the event structure for Debug purposes
-  console.debug(JSON.stringify(event, null, 2));
+  console.debug(event);
 
   const bucket = event.detail.bucket.name;
   const key = decodeURIComponent(event.detail.object.key.replace(/\+/g, ' '));
 
-  console.info(`Going to detect labels for bucket ${bucket} and key ${key}`);
+  console.debug(`Going to detect lables in bucket ${bucket} and key ${key}`);
 
   const labels: string[] = await detectLabels(bucket, key);
 
   const response = {
+    'S3Bucket' : bucket,
     'S3Key' : key,
     'labels' : labels
   };
 
   // Results logged in a structured JSON format
-  console.info(JSON.stringify(response));
+  console.info(response);
 };
 
 /* 
