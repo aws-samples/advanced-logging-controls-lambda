@@ -67,16 +67,14 @@ Resources:
               Action: 
                 - logs:CreateLogStream
                 - logs:PutLogEvents
-              Resource: !Sub
-                - arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:${logGroupName}:log-stream:*
-                - logGroupName: !Ref CloudWatchLogGroup
+              Resource: !GetAtt CloudWatchLogGroup.Arn
               Effect: Allow
       # Advanced logging controls for AWS Lambda
-      # LoggingConfig:
-      #   LogFormat: JSON # Application logs format, defaults to JSON (TEXT is optional)
-      #   ApplicationLogLevel: DEBUG # Application log level, defaults to INFO
-      #   SystemLogLevel: INFO # System log level, defaults to INFO
-      #   LogGroupName: !Ref CloudWatchLogGroup # Customized log group to emit logs to
+      LoggingConfig:
+        LogFormat: JSON # Application logs format, defaults to JSON (TEXT is optional)
+        ApplicationLogLevel: DEBUG # Application log level, defaults to INFO
+        SystemLogLevel: INFO # System log level, defaults to INFO
+        LogGroupName: !Ref CloudWatchLogGroup # Customized log group to emit logs to
 
     Metadata: # Manage esbuild properties
       BuildMethod: esbuild
@@ -133,11 +131,11 @@ Resources:
               Effect: Allow
 
       # New custom log configration
-      # LoggingConfig:
-      #   LogFormat: JSON # Application logs format, defaults to JSON (TEXT is optional)
-      #   ApplicationLogLevel: INFO # Application log level, defaults to INFO
-      #   SystemLogLevel: INFO # System log level, defaults to INFO
-      #   LogGroupName: !Ref CloudWatchLogGroup # Customized log group to emit logs to
+      LoggingConfig:
+        LogFormat: JSON 
+        ApplicationLogLevel: INFO 
+        SystemLogLevel: INFO 
+        LogGroupName: !Ref CloudWatchLogGroup
 
     Metadata: # Manage esbuild properties
       BuildMethod: esbuild

@@ -5,12 +5,12 @@ const textractClient = new TextractClient()
 
 export const lambdaHandler = async (event: S3ObjectCreatedNotificationEvent) => {
   // Only printing out the event structure for Debug purposes
-  console.debug(JSON.stringify(event, null, 2));
+  console.debug(event);
 
   const bucket = event.detail.bucket.name;
   const key = decodeURIComponent(event.detail.object.key.replace(/\+/g, ' '));
 
-  console.info(`Going to detect labels for bucket ${bucket} and key ${key}`);
+  console.debug(`Going to detect texts in bucket ${bucket} and key ${key}`);
 
   const words: string[] = await extractText(bucket, key);
 
@@ -20,7 +20,7 @@ export const lambdaHandler = async (event: S3ObjectCreatedNotificationEvent) => 
   };
 
   // Results logged in a structured JSON format
-  console.info(JSON.stringify(response));
+  console.info(response);
 };
 
 // use Textract to extract text from image
