@@ -15,6 +15,7 @@ export const lambdaHandler = async (event: S3ObjectCreatedNotificationEvent) => 
   const words: string[] = await extractText(bucket, key);
 
   const response = {
+    'S3Bucket' : bucket,
     'S3Key' : key,
     'words' : words
   };
