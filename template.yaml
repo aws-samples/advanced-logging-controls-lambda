@@ -74,7 +74,7 @@ Resources:
         LogFormat: JSON # Application logs format, defaults to JSON (TEXT is optional)
         ApplicationLogLevel: DEBUG # Application log level, defaults to INFO
         SystemLogLevel: INFO # System log level, defaults to INFO
-        LogGroupName: !Ref CloudWatchLogGroup # Customized log group to emit logs to
+        LogGroup: !Ref CloudWatchLogGroup # Customized log group to emit logs to
 
     Metadata: # Manage esbuild properties
       BuildMethod: esbuild
@@ -135,7 +135,7 @@ Resources:
         LogFormat: JSON 
         ApplicationLogLevel: INFO 
         SystemLogLevel: INFO 
-        LogGroupName: !Ref CloudWatchLogGroup
+        LogGroup: !Ref CloudWatchLogGroup
 
     Metadata: # Manage esbuild properties
       BuildMethod: esbuild
