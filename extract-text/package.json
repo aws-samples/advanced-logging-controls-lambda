@@ -15,7 +15,7 @@
   "dependencies": {
     "@aws-sdk/client-textract": "^3.431.0",
     "aws-lambda": "^1.0.7",
-    "esbuild": "^0.14.14"
+    "esbuild": "^0.25.0"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.92",
